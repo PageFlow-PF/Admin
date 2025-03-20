@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary-color: #007BFF;
+    --secondary-color: #6c757d;
+    --background-color: #1e1e2f;
+    --card-background: linear-gradient(135deg, #2a2a3b, #3b3b5b);
+    --text-color: white;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --hover-effect: scale(1.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: var(--background-color);
+    color: var(--text-color);
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+h1 .logo {
+    font-size: 40px;
+}
+
+#auth-section {
+    margin-bottom: 20px;
+}
+
+#loginButton, #logoutButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#loginButton:hover, #logoutButton:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+
+.add-book-form {
+    margin-bottom: 20px;
+}
+
+.add-book-form input, .add-book-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.add-book-form button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-book-form button:hover {
+    background-color: #0056b3;
+}
+
+#feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.book-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.book {
+    background: var(--card-background);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    width: 300px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book img {
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.book img:hover {
+    transform: var(--hover-effect);
+}
+
+.book h2 {
+    font-size: 18px;
+    margin: 10px 0;
+    font-weight: 400;
+}
+
+.book button {
+    background: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin: 5px 0;
+}
+
+.book button:hover {
+    background: #0056b3;
+    transform: var(--hover-effect);
+}
