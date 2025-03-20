@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PageFlow - Boekenbeheer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1><span class="logo">📚</span> PageFlow</h1>
+
+    <!-- Inlog-/uitlogknoppen -->
+    <div id="auth-section">
+        <button id="loginButton">Inloggen met Google</button>
+        <button id="logoutButton" class="hidden">Uitloggen</button>
+    </div>
+
+    <!-- Admin-functionaliteiten (verborgen totdat de gebruiker is ingelogd) -->
+    <div class="add-book-form hidden">
+        <h2>Voeg een nieuw boek toe</h2>
+        <input type="text" id="bookTitle" placeholder="Titel" required>
+        <input type="text" id="bookAuthor" placeholder="Auteur" required>
+        <select id="bookCategory" required>
+            <option value="" disabled selected>Selecteer een categorie</option>
+            <option value="Literatuur">📖 Literatuur</option>
+            <option value="Science Fiction">🚀 Science Fiction</option>
+            <option value="Non-Fictie">📘 Non-Fictie</option>
+            <option value="Thriller">🔪 Thriller</option>
+            <option value="Fantasy">🐉 Fantasy</option>
+            <option value="Romantiek">💖 Romantiek</option>
+            <option value="Geschiedenis">📜 Geschiedenis</option>
+            <option value="Zelfhulp">🧠 Zelfhulp</option>
+            <option value="Kinderboeken">🧸 Kinderboeken</option>
+            <option value="Poëzie">📜 Poëzie</option>
+        </select>
+        <input type="text" id="bookDownloadLink" placeholder="Download Link" required>
+        <input type="text" id="bookCoverUrl" placeholder="Cover URL" required>
+        <button onclick="addBook()">Voeg Boek Toe</button>
+        <div id="feedback" class="hidden"></div>
+    </div>
+
+    <!-- Lijst van boeken -->
+    <div id="book-list" class="book-container hidden"></div>
+
+    <!-- Firebase en admin.js -->
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
