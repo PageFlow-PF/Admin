@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boekenlijst</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #1e1e2f;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .add-book-form {
+            margin-bottom: 40px;
+        }
+
+        .add-book-form input,
+        .add-book-form button {
+            width: 80%;
+            max-width: 400px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #2a2a3b;
+            color: white;
+            text-align: center;
+        }
+
+        .search-container, .category-container {
+            margin-bottom: 20px;
+        }
+
+        #search, #categoryFilter {
+            width: 80%;
+            max-width: 400px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            background: #2a2a3b;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .book {
+            background: linear-gradient(135deg, #2a2a3b, #3b3b5b);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            width: 300px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .book.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .book img {
+            width: 100%;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .book img:hover {
+            transform: scale(1.05);
+        }
+
+        .book h2 {
+            font-size: 18px;
+            margin: 10px 0;
+            font-weight: 400;
+        }
+
+        .book button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+            transition: background 0.3s ease, transform 0.2s;
+        }
+
+        .book button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📚 Moderne Boekenlijst</h1>
+
+    <!-- 📥 Voeg Boeken Toe Formulier -->
+    <div class="add-book-form">
+        <h2>📚 Voeg een nieuw boek toe</h2>
+        <input type="text" id="bookTitle" placeholder="Boektitel" required>
+        <input type="text" id="bookAuthor" placeholder="Auteur" required>
+        <input type="text" id="bookCategory" placeholder="Categorie" required>
+        <input type="url" id="bookDownloadLink" placeholder="Download link" required>
+        <input type="url" id="bookCoverUrl" placeholder="Cover URL" required>
+        <button id="addBookButton">Voeg Boek Toe</button>
+    </div>
+
+    <!-- 🔍 Zoekbalk -->
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Zoek een boek..." onkeyup="searchBooks()">
+    </div>
+
+    <!-- 📂 Categorieën -->
+    <div class="category-container">
+        <select id="categoryFilter" onchange="searchBooks()">
+            <option value="all">📚 Alle Categorieën</option>
+            <option value="Literatuur">📖 Literatuur</option>
+            <option value="Science Fiction">🚀 Science Fiction</option>
+            <option value="Non-Fictie">📘 Non-Fictie</option>
+        </select>
+    </div>
+
+    <div id="book-list" class="book-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let booksArray = [];
+
+        // Functie om boeken op te halen uit Firebase
+        async function getBooks() {
+            const bookList = document.getElementById("book-list");
+            bookList.innerHTML = "";
+
+            try {
+                const booksRef = collection(db, "books");
+                const snapshot = await getDocs(booksRef);
+
+                if (snapshot.empty) {
+                    bookList.innerHTML = "<p>Geen boeken gevonden.</p>";
+                    return;
+                }
+
+                let delay = 0;
+                booksArray = [];
+
+                snapshot.forEach(doc => {
+                    const bookData = doc.data();
+                    if (!bookData.downloadLink) {
+                        console.warn("⚠️ Geen downloadLink gevonden voor", bookData.title);
+                        return;
+                    }
+
+                    booksArray.push(bookData);
+
+                    const bookElement = document.createElement("div");
+                    bookElement.classList.add("book");
+
+                    bookElement.innerHTML = `
+                        <img src="${bookData.coverUrl}" alt="Boek Cover">
+                        <h2>${bookData.title}</h2>
+                        <button onclick="window.open('${bookData.downloadLink}', '_blank')">
+                            📥 Download het boek
+                        </button>
+                    `;
+
+                    bookList.appendChild(bookElement);
+
+                    setTimeout(() => {
+                        bookElement.classList.add("show");
+                    }, delay);
+
+                    delay += 200;
+                });
+            } catch (error) {
+                console.error("Fout bij het ophalen van boeken:", error);
+                bookList.innerHTML = "<p>Er is een fout opgetreden bij het laden van de boeken.</p>";
+            }
+        }
+
+        getBooks();
+
+        // Functie om een nieuw boek toe te voegen aan Firebase
+        async function addBook() {
+            const title = document.getElementById("bookTitle").value;
+            const author = document.getElementById("bookAuthor").value;
+            const category = document.getElementById("bookCategory").value;
+            const downloadLink = document.getElementById("bookDownloadLink").value;
+            const coverUrl = document.getElementById("bookCoverUrl").value;
+
+            // Firebase functie om het boek toe te voegen
+            try {
+                await addDoc(collection(db, "books"), {
+                    title: title,
+                    author: author,
+                    category: category,
+                    downloadLink: downloadLink,
+                    coverUrl: coverUrl
+                });
+                alert("Boek succesvol toegevoegd!");
+                
+                // Leeg de invoervelden na toevoegen
+                document.getElementById("bookTitle").value = '';
+                document.getElementById("bookAuthor").value = '';
+                document.getElementById("bookCategory").value = '';
+                document.getElementById("bookDownloadLink").value = '';
+                document.getElementById("bookCoverUrl").value = '';
+
+                // Haal de boeken opnieuw op om de lijst bij te werken
+                getBooks();
+            } catch (e) {
+                console.error("Er is iets mis gegaan: ", e);
+                alert("Er is iets mis gegaan bij het toevoegen van het boek.");
+            }
+        }
+
+        // Voeg event listener toe voor het toevoegen van boeken
+        document.getElementById("addBookButton").addEventListener("click", addBook);
+
+        // 🔍 **Zoekfunctie + Categorieën**
+        window.searchBooks = function() {
+            let input = document.getElementById("search").value.toLowerCase();
+            let selectedCategory = document.getElementById("categoryFilter").value;
+            let bookList = document.getElementById("book-list");
+            bookList.innerHTML = "";
+
+            booksArray.forEach(book => {
+                if (
+                    book.title.toLowerCase().includes(input) &&
+                    (selectedCategory === "all" || book.category === selectedCategory)
+                ) {
+                    const bookElement = document.createElement("div");
+                    bookElement.classList.add("book", "show");
+
+                    bookElement.innerHTML = `
+                        <img src="${book.coverUrl}" alt="Boek Cover">
+                        <h2>${highlightText(book.title, input)}</h2>
+                        <button onclick="window.open('${book.downloadLink}', '_blank')">
+                            📥 Download het boek
+                        </button>
+                    `;
+
+                    bookList.appendChild(bookElement);
+                }
+            });
+
+            if (bookList.innerHTML === "") {
+                bookList.innerHTML = "<p>Geen resultaten gevonden.</p>";
+            }
+        };
+
+        function highlightText(text, keyword) {
+            if (!keyword) return text;
+            let regex = new RegExp(`(${keyword})`, "gi");
+            return text.replace(regex, `<span style="background: yellow; color: black; font-weight: bold;">$1</span>`);
+        }
+
+    </script>
+
+</body>
+</html>
